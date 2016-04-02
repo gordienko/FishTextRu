@@ -1,0 +1,70 @@
+// Fill Text (ctrl t)
+/*
+
+# FishTextRu
+Dummy russian text filler plugin for Sketch!
+
+@version: *0.7*
+@author: @gordienko
+
+
+
+
+@todo:
+* fix the resize issue (refresh?)
+
+## How to use ?
+
+Double click *FishTextRu.sketchplugin* to have Sketch install it in the right place.
+
+Use **ctrl + t** or the plugins menu and select *FishTextRu* to add filler text to a selected textbox.
+When there is no internet connection available, a standard filler text will be provided.
+
+NOTE: you need Sketch 2.1.2
+
+## Many thanks to:
+* [@bohemiancoding](https://twitter.com/bohemiancoding) for the awesome Sketch and the help!
+* [Fishtext](http://fishtext.ru/) for fish text genarator!
+* [@sdriblive](https://github.com/sdrib) for Dummy text filler plugin for Sketch!
+
+*/
+
+function get_hipster_fill(){
+  // default params
+  var p_paras = [[doc askForUserInput:"How many paragraphs?" ofType:1 initialValue:"1"] integerValue],
+      p_type = "hipster-centric",
+      p_html = "false";
+
+  // define the url
+  var theAddress = "http://www.chukothost.ru/fish_text/index.json?paras=" + p_paras + "&type=" + p_type + "&html=" + p_html,
+      theUrl = NSURL.URLWithString_(theAddress);
+
+  // define the request
+  var theRequest = NSMutableURLRequest.requestWithURL_cachePolicy_timeoutInterval(theUrl, NSURLRequestReloadIgnoringLocalCacheData, 60);
+  theRequest.setHTTPMethod_("GET");
+
+  // get response data
+  var theResponse = null,
+      theResponseData = [NSURLConnection sendSynchronousRequest:theRequest returningResponse:nil error:nil];
+
+  if (theResponseData!=nil){//response/online or not?
+    // convert data to text
+    theText = [[NSString alloc] initWithData:theResponseData encoding:NSUTF8StringEncoding];
+    // parse txt
+    var parsed = JSON.parse(theText);
+    var hip = parsed.text;
+  } else {
+    var hip ="Идейные соображения высшего порядка, а также начало повседневной работы по формированию позиции в значительной степени обуславливает создание модели развития. Повседневная практика показывает, что реализация намеченных плановых заданий позволяет выполнять важные задания по разработке дальнейших направлений развития. Разнообразный и богатый опыт дальнейшее развитие различных форм деятельности влечет за собой процесс внедрения и модернизации существенных финансовых и административных условий. Идейные соображения высшего порядка, а также сложившаяся структура организации играет важную роль в формировании модели развития. С другой стороны укрепление и развитие структуры требуют определения и уточнения системы обучения кадров, соответствует насущным потребностям.";
+  }
+  return hip
+}
+
+//apply to the selected layer
+var layer = selection[0]
+
+if([layer class] === MSTextLayer){
+  [layer setStringValue:get_hipster_fill()]
+  [layer markLayerDirty]
+} else {
+  [[NSApplication sharedApplication] displayDialog:"FishTextRu will fill the selected text layer with, well, hipster fill. Thus, you need to select a text layer." withTitle:"Please select a text layer"]]
+}
